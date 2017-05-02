@@ -1,0 +1,216 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  	<meta charset="utf-8">
+
+  	<title>Nessus UI Assessment</title>
+  	<meta name="description" content="Nessus UI Assessment">
+  	<meta name="author" content="Dan Lesko">
+
+  	<!--[if lt IE 9]>
+    	<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+  	<![endif]-->
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  	<style type="text/css">
+
+  		body,html {
+		  	margin:0;
+		  	padding:0;
+		}
+
+  		body {
+  			font-family: "Verdana";
+  			background-color: #7f8182;
+  		}
+
+		.container {
+			
+			width: 700px;
+			height: 100%;
+			margin-left: auto;
+			margin-right: auto;
+
+			
+		}
+			
+		.inner-container {
+			width: 700px;
+			height: 100%;
+			padding: 10px;
+			position: absolute;
+			background-color: white;
+
+			border-left: 2px solid black;
+			border-right: 2px solid black;
+		}
+
+		input[type=number] {
+		    width: 100%;
+		    padding: 12px 10px;
+		    margin: 2px 0;
+		    box-sizing: border-box;
+		    border: 2px solid #42cbf4
+		}
+
+		input[type=number]:focus {
+		    background-color: #d3d3d3;
+		}
+
+		.button {
+		    border: none;
+		    color: black;
+		    padding: 8px 17px;
+		    text-align: center;
+		    display: inline-block;
+		    font-size: 14px;
+		    margin: 4px 2px;
+		    -webkit-transition-duration: 0.4s; /* Safari */
+		    transition-duration: 0.4s;
+		    cursor: pointer;
+		    background-color: white; 
+		    color: black; 
+		    border: 2px solid #42cbf4;
+		}
+
+		.button:hover {
+		    background-color: #42cbf4;
+		    color: white;
+		    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+		}
+
+		.bar{
+			width: 700px;
+			position: relative;
+			border-bottom: solid;
+			border-bottom-color: black;
+		}
+
+		table {
+		    border-collapse: collapse;
+		    width: 100%;
+		}
+
+		th, td {
+		    padding: 8px;
+		    text-align: left;
+		    border-bottom: 1px solid #ddd;
+		}
+
+		.middle-align{
+			text-align: center;
+		}
+
+  	</style>
+</head>
+
+<body>
+	<div class="container">
+		<div class="inner-container">
+			<div class="bar middle-align">
+				<h1>GET HOSTS</h1>
+			</div>
+			<br />
+
+			<form onkeypress="return event.keyCode != 13;">
+			  	How many hosts would you like to view? <br>
+			  	<input id="hostNum" type="number" name="hostNum" placeholder="Enter a number 0 or greater." >
+			  	<input id="submitButton" class="button" type="button" value="Submit" />
+			  	<input id="resetButton" class="button" type="button" value="Reset" />
+			</form>
+
+			<div class="bar">
+				<h3>Host Table:</h3>
+			</div>
+			<div>
+				<table id="host_table">
+					<thead>
+			            <tr>
+			                <th>Name</th>
+			                <th>Hostname</th>
+			                <th>Port</th>
+			                <th>Username</th>
+			            </tr>
+		        	</thead>
+		        	<tr>
+		                <td>No</td>
+		                <td>Data</td>
+		                <td>Requested</td>
+		                <td>Yet</td>
+		            </tr>
+				</table>
+			</div>
+
+			<div class="bar">
+				<h3>Raw Data Returned:</h3>
+			</div>
+			<pre id="hosts">No Data Requested Yet</pre>
+		</div>
+	</div>
+
+  	<script>
+
+  		$(document).ready(function() {
+
+  			$("#submitButton").click(function(){
+
+  				// remove existing rows on click
+  				$("#host_table").find("tr:gt(0)").remove();
+
+  				var numHosts = $("#hostNum").val();
+  				console.log(numHosts);
+	  			
+		  		if (numHosts != '' && numHosts >= 0){
+
+		  			if(numHosts > 2){
+		  				alert("There are only 2 hosts in the database currently!"); // Hardcoded for now
+		  			}
+		  			// I am hosting a small backend on a Tomcat server, so that pathname for the API is slightly changed.
+			        $.get("http://localhost:8080/GetHosts/download/request?host=" + numHosts, function(data, status){
+
+			        		if(status == "success"){
+
+				            	var hostJSON = data;
+						    	var hostPretty = JSON.stringify(hostJSON, null, '\t');
+
+						      	$("#hosts").text(hostPretty);
+
+						      	hosts=hostJSON.configurations;
+
+						      	var trHTML='';
+						      	$.each(hosts, function (i, item) {
+						            trHTML += '<tr><td>' + item.name + '</td><td>' + item.hostname + '</td><td>' + item.port + '</td><td>' + item.username + '</td></tr>';
+						        });
+
+						        $('#host_table').append(trHTML);
+
+						    } else {
+						    	alert("An error occurred!");
+						    }
+			        });
+			    } else {
+			    	alert("Please enter a number greater than or equal to 0!")
+			    }
+		    });
+
+		    $("#resetButton").click(function(){
+
+		    	$("#host_table").find("tr:gt(0)").remove();
+
+		    	var trHTML='';
+		      	
+		        trHTML += '<tr><td>' + 'No' + '</td><td>' + 'Data' + '</td><td>' + 'Requested' + '</td><td>' + 'Yet' + '</td></tr>';
+		        preHTML = 'No Data Requested Yet';
+		        
+
+		        $('#host_table').append(trHTML);
+
+		    	$("#hostNum").val('');
+		    	$("#hosts").text(preHTML);
+
+		    });
+		});
+
+  	</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  	<meta charset="utf-8">
+
+  	<title>Nessus UI Assessment</title>
+  	<meta name="description" content="Nessus UI Assessment">
+  	<meta name="author" content="Dan Lesko">
+
+  	<!--[if lt IE 9]>
+    	<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+  	<![endif]-->
+</head>
+
+<body>
+	<h1>Get Hosts</h1>
+
+	<form onkeypress="return event.keyCode != 13;">
+	  	How many hosts would you like to view? <br>
+	  	<input id="hostNum" type="number" name="hostNum"><br>
+	  	<input class="buttom" type="button" value="Submit" onclick="getHosts()" />
+	</form>
+	
+
+	<p id="hosts"></p>
+
+  	<script>
+  		function getHosts() {
+
+  			var numHosts = document.getElementById('hostNum').value;
+
+  			if (numHosts != '' && numHosts >= 0){
+		  		var xhttp = new XMLHttpRequest();
+
+		  		// I am hosting a small backend on a Tomcat server, so that pathname for the API is slightly changed due to other projects being hosted
+		  		xhttp.open("GET", "http://localhost:8080/GetHosts/download/request?host=" + numHosts, true);
+
+		  		// Previously made call to a local JSON file, but I decided to implement a backend when designing the app in Angular 2.
+		  		//xhttp.open("GET", "hosts.json", true);
+				xhttp.send();
+
+				xhttp.onreadystatechange = function() {
+				    if (this.readyState == 4 && this.status == 200) {
+				      	document.getElementById("hosts").innerHTML = this.responseText;
+				    }
+			  	};
+			} else {
+				alert("Please enter a number greater than or equal to 0!")
+			}
+		}
+
+  	</script>
+</body>
+</html>
