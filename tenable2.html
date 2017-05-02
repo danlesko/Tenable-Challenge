@@ -1,0 +1,112 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  	<meta charset="utf-8">
+
+  	<title>Nessus UI Assessment</title>
+  	<meta name="description" content="Nessus UI Assessment">
+  	<meta name="author" content="Dan Lesko">
+
+  	<!--[if lt IE 9]>
+    	<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+  	<![endif]-->
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+
+<body>
+	<h1>Get Hosts</h1>
+
+	<form onkeypress="return event.keyCode != 13;">
+	  	How many hosts would you like to view? <br>
+	  	<input id="hostNum" type="number" name="hostNum"><br>
+	  	<input id="submitButton" class="button" type="button" value="Submit" />
+	  	<input id="resetButton" class="button" type="button" value="Reset" />
+	</form>
+
+	<br>
+	<h3>Host Table:</h3>
+	<div>
+		<table id="host_table">
+			<thead>
+	            <tr>
+	                <th>Name</th>
+	                <th>Hostname</th>
+	                <th>Port</th>
+	                <th>Username</th>
+	            </tr>
+        	</thead>
+        	<tr>
+                <td>No</td>
+                <td>Data</td>
+                <td>Requested</td>
+                <td>Yet</td>
+            </tr>
+		</table>
+	</div>
+
+	<h3>Raw Data Returned:</h3>
+	<pre id="hosts">No Data Requested Yet</pre>
+
+  	<script>
+
+  		$(document).ready(function() {
+
+  			$("#submitButton").click(function(){
+
+  				// remove existing rows on click
+  				$("#host_table").find("tr:gt(0)").remove();
+
+  				var numHosts = $("#hostNum").val();
+  				console.log(numHosts);
+	  			
+		  		if (numHosts != '' && numHosts >= 0){
+		  			// I am hosting a small backend on a Tomcat server, so that pathname for the API is slightly changed.
+			        $.get("http://localhost:8080/GetHosts/download/request?host=" + numHosts, function(data, status){
+
+			        		if(status == "success"){
+
+				            	var hostJSON = data;
+						    	var hostPretty = JSON.stringify(hostJSON, null, '\t');
+
+						      	$("#hosts").text(hostPretty);
+
+						      	hosts=hostJSON.configurations;
+
+						      	var trHTML='';
+						      	$.each(hosts, function (i, item) {
+						            trHTML += '<tr><td>' + item.name + '</td><td>' + item.hostname + '</td><td>' + item.port + '</td><td>' + item.username + '</td></tr>';
+						        });
+
+						        $('#host_table').append(trHTML);
+
+						    } else {
+						    	alert("An error occurred!");
+						    }
+			        });
+			    } else {
+			    	alert("Please enter a number greater than or equal to 0!")
+			    }
+		    });
+
+		    $("#resetButton").click(function(){
+
+		    	$("#host_table").find("tr:gt(0)").remove();
+
+		    	var trHTML='';
+		      	
+		        trHTML += '<tr><td>' + 'No' + '</td><td>' + 'Data' + '</td><td>' + 'Requested' + '</td><td>' + 'Yet' + '</td></tr>';
+		        preHTML = 'No Data Requested Yet';
+		        
+
+		        $('#host_table').append(trHTML);
+
+		    	$("#hostNum").val('');
+		    	$("#hosts").text(preHTML);
+
+		    });
+		});
+
+  	</script>
+</body>
+</html>
