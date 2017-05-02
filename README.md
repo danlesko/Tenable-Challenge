@@ -16,7 +16,7 @@ The rest API written for the application is found under:
 1) [Part 1](http://ec2-52-54-85-216.compute-1.amazonaws.com:8080/GetHosts/tenable1.html)
 2) [Part 2](http://ec2-52-54-85-216.compute-1.amazonaws.com:8080/GetHosts/tenable2.html)
 3) [Part 3](http://ec2-52-54-85-216.compute-1.amazonaws.com:8080/GetHosts/tenable3.html)
-4) [Part 4](http://ec2-52-54-85-216.compute-1.amazonaws.com:8080/GetHosts/)
+4) [Part 4](http://ec2-52-54-85-216.compute-1.amazonaws.com:8080/GetHosts/) - Written with Angular2, Bootstrap CSS
 5) Part 5 Written Below:
 
 If I had to handle a response of containing 10000 objects on my JSON, there are a couple of ways I would handle it. First and foremost, we should make sure that all requests are asynchronous so that other rendering can be accomplished while the data is loading.
